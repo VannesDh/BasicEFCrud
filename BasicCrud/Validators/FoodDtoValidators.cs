@@ -15,9 +15,7 @@ public class FoodDTOValidator : AbstractValidator<FoodDTO>
 
         RuleFor(x => x.RestaurantId)
             .NotEmpty()
-            .WithMessage("RestaurantId is required.")
-            .GreaterThan(0)
-            .WithMessage("RestaurantId must be greater than 0.");
+            .WithMessage("RestaurantId is required.");
 
         RuleFor(x => x.Price)
             .NotEmpty()

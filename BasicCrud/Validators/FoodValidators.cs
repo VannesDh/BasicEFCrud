@@ -13,9 +13,9 @@ public class FoodValidator : AbstractValidator<Food>
             .MaximumLength(100)
             .WithMessage("Food name cannot exceed 100 characters.");
 
-        RuleFor(x => x.RestaurantId)
-            .GreaterThan(0)
-            .WithMessage("RestaurantId must be greater than 0.");
+       RuleFor(x => x.RestaurantId)
+            .NotEmpty()
+            .WithMessage("RestaurantId is required.");
 
         RuleFor(x => x.Price)
             .GreaterThan(0)
