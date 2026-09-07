@@ -1,3 +1,4 @@
+using AutoMapper;
 using BasicCrud.Data;
 using BasicCrud.Models;
 using BasicCrud.Models.Enums;
@@ -8,10 +9,12 @@ namespace BasicCrud.Repositories;
 public class RestaurantRepository : IRestaurantRepository
 {
     private readonly AppDbContext _appDbContext;
+    private readonly IMapper _mapper;
 
-    public RestaurantRepository(AppDbContext appDbContext)
+    public RestaurantRepository(AppDbContext appDbContext, IMapper mapper)
     {
         _appDbContext = appDbContext;
+        _mapper = mapper;
     }
 
     public async Task<List<Restaurant>> GetAll()
@@ -68,10 +71,7 @@ public class RestaurantRepository : IRestaurantRepository
         if (restaurant == null)
             return null;
 
-        restaurant.Name = updatedRestaurant.Name;
-        restaurant.RestaurantType = updatedRestaurant.RestaurantType;
-        restaurant.Star = updatedRestaurant.Star;
-        restaurant.Location = updatedRestaurant.Location;
+        _mapper.Map(updatedRestaurant, restaurant);
 
         await _appDbContext.SaveChangesAsync();
 

@@ -3,6 +3,7 @@ using BasicCrud.Models;
 using BasicCrud.Services;
 using BasicCrud.Models.Enums;
 using Microsoft.AspNetCore.Authorization;
+using AutoMapper;
 
 namespace BasicCrud.Controllers;
 
@@ -12,10 +13,12 @@ namespace BasicCrud.Controllers;
 public class RestaurantController : ControllerBase
 {
     private readonly RestaurantService _restaurantService;
+    private readonly IMapper _mapper;
 
-    public RestaurantController(RestaurantService restaurantService)
+    public RestaurantController(RestaurantService restaurantService, IMapper mapper)
     {
         _restaurantService = restaurantService;
+        _mapper = mapper;
     }
 
     [HttpGet]
@@ -55,13 +58,7 @@ public class RestaurantController : ControllerBase
     public async Task<ActionResult> CreateRestaurant(
         RestaurantDTO restaurantDTO)
     {
-        var restaurant = new Restaurant
-        {
-            Name = restaurantDTO.Name,
-            Star = restaurantDTO.Star,
-            Location = restaurantDTO.Location,
-            RestaurantType = restaurantDTO.RestaurantType
-        };
+        var restaurant = _mapper.Map<Restaurant>(restaurantDTO);
 
         var result = await _restaurantService.CreateRestaurant(restaurant);
 

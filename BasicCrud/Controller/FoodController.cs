@@ -1,3 +1,4 @@
+using AutoMapper;
 using BasicCrud.Models;
 using BasicCrud.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -11,10 +12,13 @@ namespace BasicCrud.Controllers;
 public class FoodController : ControllerBase
 {
     private readonly FoodService _foodService;
+    private readonly IMapper _mapper;
 
-    public FoodController(FoodService foodService)
+
+    public FoodController(FoodService foodService, IMapper mapper)
     {
         _foodService = foodService;
+        _mapper = mapper;
     }
 
     [HttpGet]
@@ -30,22 +34,18 @@ public class FoodController : ControllerBase
     }
 
     [HttpPost("create/")]
-    public async Task<ActionResult<Food>> CreateFood(FoodDto foodDTO)
+    public async Task<ActionResult<Food>> CreateFood(FoodDTO foodDTO)
     {
-        var food = new Food
-        {
-            Name = foodDTO.Name,
-            Price = foodDTO.Price,
-            RestaurantId = foodDTO.RestaurantId
-        };
 
+        var food = _mapper.Map<Food>(foodDTO);
+    
         var createdFood = await _foodService.CreateFood(food);
 
         return Ok(createdFood);
     }
     
     [HttpPut("{id}")]
-    public async Task<ActionResult<Food>> UpdateFood(int id, FoodDto food)
+    public async Task<ActionResult<Food>> UpdateFood(int id, FoodDTO food)
     {
         var updatedFood = await _foodService.UpdateFoodById(id, food);
 

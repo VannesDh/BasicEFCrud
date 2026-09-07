@@ -1,6 +1,6 @@
 namespace BasicCrud.Models;
 
-public class FoodDto
+public class FoodDTO
 {
     public required string Name { get; set; }
     public int Price { get; set; }

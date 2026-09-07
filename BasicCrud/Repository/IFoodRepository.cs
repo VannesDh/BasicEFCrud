@@ -7,5 +7,5 @@ public interface IFoodRepository
     Task<Food> Create(Food food);
     Task<Food?> GetById(int id);
     Task<Food?> Delete(int id);
-    Task<Food?> Update(int id, FoodDto updatedFood);
+    Task<Food?> Update(int id, FoodDTO updatedFood);
 }

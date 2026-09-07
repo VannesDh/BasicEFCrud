@@ -12,10 +12,15 @@ public class AppDbContext : DbContext
     public DbSet<Restaurant> Restaurants {get; set;}
     public DbSet<Food> Foods {get; set;}
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+   protected override void OnModelCreating(ModelBuilder modelBuilder)
+{
+    modelBuilder.Entity<Restaurant>(entity =>
     {
-        modelBuilder.Entity<Restaurant>()
-            .Property(r => r.RestaurantType)
+        entity.HasKey(r => r.Id);
+        
+        entity.Property(r => r.RestaurantType)
             .HasConversion<string>();
-    }
+    });
+}
+    
 }

@@ -1,10 +1,16 @@
 using System.Text;
 using System.Text.Json.Serialization;
 using BasicCrud.Data;
+using BasicCrud.Mappings;
 using BasicCrud.Repositories;
 using BasicCrud.Services;
+using BasicCrud.Validators;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using BasicCrud.Validators;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -63,8 +69,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAutoMapper(cfg =>
+{
+    cfg.AddProfile<MappingProfile>();
+});
 
+builder.Services.AddAuthorization();
 
 
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -74,6 +84,8 @@ builder.Services.AddScoped<FoodService>();
 builder.Services.AddScoped<IRestaurantRepository, RestaurantRepository>();
 builder.Services.AddScoped<IFoodRepository, FoodRepository>();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<RestaurantDTOValidator>();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();

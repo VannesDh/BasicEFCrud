@@ -51,7 +51,7 @@ public class FoodService
         };
     }
 
-    public async Task<ServiceResult<Food>> UpdateFoodById(int id, FoodDto food)
+    public async Task<ServiceResult<Food>> UpdateFoodById(int id, FoodDTO food)
     {
         var updatedFood = await _foodRepository.Update(id, food);
 
