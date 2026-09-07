@@ -2,9 +2,11 @@ using Microsoft.AspNetCore.Mvc;
 using BasicCrud.Models;
 using BasicCrud.Services;
 using BasicCrud.Models.Enums;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BasicCrud.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class RestaurantController : ControllerBase
@@ -17,32 +19,42 @@ public class RestaurantController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<Restaurant>>> GetRestaurants()
+    public async Task<ActionResult> GetRestaurants()
     {
-        return Ok(await _restaurantService.GetAllRestaurant());
+        var result = await _restaurantService.GetAllRestaurant();
+
+        if (!result.Success)
+            return StatusCode(result.StatusCode, result.Message);
+
+        return StatusCode(result.StatusCode, result.Data);
     }
 
     [HttpGet("id/{id}")]
-    public async Task<ActionResult<Restaurant>> GetRestaurantById(int id)
+    public async Task<ActionResult> GetRestaurantById(int id)
     {
-        var restaurant = await _restaurantService.GetRestaurantById(id);
+        var result = await _restaurantService.GetRestaurantById(id);
 
-        if (restaurant == null)
-            return NotFound();
+        if (!result.Success)
+            return StatusCode(result.StatusCode, result.Message);
 
-        return Ok(restaurant);
+        return StatusCode(result.StatusCode, result.Data);
     }
 
     [HttpGet("type/{type}")]
-    public async Task<ActionResult<List<Restaurant>>> GetRestaurantByType(RestaurantType type)
+    public async Task<ActionResult> GetRestaurantByType(RestaurantType type)
     {
-        return Ok(await _restaurantService.GetRestaurantByType(type));
+        var result = await _restaurantService.GetRestaurantByType(type);
+
+        if (!result.Success)
+            return StatusCode(result.StatusCode, result.Message);
+
+        return StatusCode(result.StatusCode, result.Data);
     }
 
-    [HttpPost("create/")]
-    public async Task<ActionResult<Restaurant>> CreateRestaurant(RestaurantDTO restaurantDTO)
+    [HttpPost("create")]
+    public async Task<ActionResult> CreateRestaurant(
+        RestaurantDTO restaurantDTO)
     {
-
         var restaurant = new Restaurant
         {
             Name = restaurantDTO.Name,
@@ -51,30 +63,38 @@ public class RestaurantController : ControllerBase
             RestaurantType = restaurantDTO.RestaurantType
         };
 
-        var created = await _restaurantService.CreateRestaurant(restaurant);
+        var result = await _restaurantService.CreateRestaurant(restaurant);
 
-        return created;
+        if (!result.Success)
+            return StatusCode(result.StatusCode, result.Message);
+
+        return StatusCode(result.StatusCode, result.Data);
     }
 
     [HttpDelete("delete/{id}")]
-    public async Task<ActionResult<Restaurant>> DeleteRestaurant(int id)
+    public async Task<ActionResult> DeleteRestaurant(int id)
     {
-        var restaurant = await _restaurantService.DeleteRestaurantById(id);
+        var result = await _restaurantService.DeleteRestaurantById(id);
 
-        if (restaurant == null)
-            return NotFound();
+        if (!result.Success)
+            return StatusCode(result.StatusCode, result.Message);
 
-        return restaurant;
+        return StatusCode(result.StatusCode, result.Data);
     }
 
     [HttpPut("update/{id}")]
-    public async Task<ActionResult<Restaurant>> UpdateRestaurant(int id, RestaurantDTO restaurantDTO)
+    public async Task<ActionResult> UpdateRestaurant(
+        int id,
+        RestaurantDTO restaurantDTO)
     {
-        var restaurant = await _restaurantService.UpdateRestaurantById(id, restaurantDTO);
+        var result = await _restaurantService.UpdateRestaurantById(
+            id,
+            restaurantDTO
+        );
 
-        if (restaurant == null)
-            return NotFound();
+        if (!result.Success)
+            return StatusCode(result.StatusCode, result.Message);
 
-        return restaurant;
+        return StatusCode(result.StatusCode, result.Data);
     }
 }

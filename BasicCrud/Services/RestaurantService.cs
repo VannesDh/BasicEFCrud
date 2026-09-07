@@ -1,75 +1,130 @@
-using BasicCrud.Data;
 using BasicCrud.Models;
 using BasicCrud.Models.Enums;
-using Microsoft.EntityFrameworkCore;
+using BasicCrud.Repositories;
 
 namespace BasicCrud.Services;
+
 public class RestaurantService
 {
-    private readonly AppDbContext _appDbContext;
+    private readonly IRestaurantRepository _restaurantRepository;
 
-    public RestaurantService(AppDbContext appDbContext)
+    public RestaurantService(IRestaurantRepository restaurantRepository)
     {
-        _appDbContext = appDbContext;
+        _restaurantRepository = restaurantRepository;
     }
 
-    public async Task<List<Restaurant>> GetAllRestaurant()
+    public async Task<ServiceResult<List<Restaurant>>> GetAllRestaurant()
     {
-        return await _appDbContext.Restaurants
-                    .Include(r => r.Foods)
-                    .ToListAsync();
+        var restaurants = await _restaurantRepository.GetAll();
+
+        return new ServiceResult<List<Restaurant>>
+        {
+            Success = true,
+            Message = "Restaurants retrieved successfully",
+            Data = restaurants,
+            StatusCode = 200
+        };
     }
 
-    public async Task<Restaurant?> GetRestaurantById(int id)
+    public async Task<ServiceResult<Restaurant>> GetRestaurantById(int id)
     {
-        return await _appDbContext.Restaurants
-                    .Include(r => r.Foods)
-                    .FirstOrDefaultAsync(r => r.Id == id);
-    }
-
-    public async Task<List<Restaurant>> GetRestaurantByType(RestaurantType type)
-    {
-        return await _appDbContext.Restaurants
-                .Include(r => r.Foods)
-                .Where(r => r.RestaurantType == type)
-                .ToListAsync();
-    }
-
-    public async Task<Restaurant> CreateRestaurant(Restaurant restaurant)
-    {
-        _appDbContext.Restaurants.Add(restaurant);
-        await _appDbContext.SaveChangesAsync();
-        return restaurant;
-    }
-
-    public async Task<Restaurant?> DeleteRestaurantById(int id)
-    {
-        Restaurant? restaurant = await _appDbContext.Restaurants
-                                .FirstOrDefaultAsync(r => r.Id == id);
+        var restaurant = await _restaurantRepository.GetById(id);
 
         if (restaurant == null)
-            return null;
+        {
+            return new ServiceResult<Restaurant>
+            {
+                Success = false,
+                Message = "Restaurant not found",
+                StatusCode = 404
+            };
+        }
 
-        _appDbContext.Restaurants.Remove(restaurant);
-        await _appDbContext.SaveChangesAsync();
-        return restaurant;
+        return new ServiceResult<Restaurant>
+        {
+            Success = true,
+            Message = "Restaurant retrieved successfully",
+            Data = restaurant,
+            StatusCode = 200
+        };
     }
 
-    public async Task<Restaurant?> UpdateRestaurantById(int id, RestaurantDTO updatedRestaurant)
+    public async Task<ServiceResult<List<Restaurant>>> GetRestaurantByType(
+        RestaurantType type)
     {
-        Restaurant? restaurant = await _appDbContext.Restaurants
-                                .FirstOrDefaultAsync(r => r.Id == id);
+        var restaurants = await _restaurantRepository.GetByType(type);
+
+        return new ServiceResult<List<Restaurant>>
+        {
+            Success = true,
+            Message = "Restaurants retrieved successfully",
+            Data = restaurants,
+            StatusCode = 200
+        };
+    }
+
+    public async Task<ServiceResult<Restaurant>> CreateRestaurant(
+        Restaurant restaurant)
+    {
+        var created = await _restaurantRepository.Create(restaurant);
+
+        return new ServiceResult<Restaurant>
+        {
+            Success = true,
+            Message = "Restaurant created successfully",
+            Data = created,
+            StatusCode = 201
+        };
+    }
+
+    public async Task<ServiceResult<Restaurant>> DeleteRestaurantById(int id)
+    {
+        var restaurant = await _restaurantRepository.Delete(id);
 
         if (restaurant == null)
-            return null;
+        {
+            return new ServiceResult<Restaurant>
+            {
+                Success = false,
+                Message = "Restaurant not found",
+                StatusCode = 404
+            };
+        }
 
-        restaurant.Name = updatedRestaurant.Name;
-        restaurant.RestaurantType = updatedRestaurant.RestaurantType;
-        restaurant.Star = updatedRestaurant.Star;
-        restaurant.Location = updatedRestaurant.Location;
+        return new ServiceResult<Restaurant>
+        {
+            Success = true,
+            Message = "Restaurant deleted successfully",
+            Data = restaurant,
+            StatusCode = 200
+        };
+    }
 
-        await _appDbContext.SaveChangesAsync();
+    public async Task<ServiceResult<Restaurant>> UpdateRestaurantById(
+        int id,
+        RestaurantDTO updatedRestaurant)
+    {
+        var restaurant = await _restaurantRepository.Update(
+            id,
+            updatedRestaurant
+        );
 
-        return restaurant;
+        if (restaurant == null)
+        {
+            return new ServiceResult<Restaurant>
+            {
+                Success = false,
+                Message = "Restaurant not found",
+                StatusCode = 404
+            };
+        }
+
+        return new ServiceResult<Restaurant>
+        {
+            Success = true,
+            Message = "Restaurant updated successfully",
+            Data = restaurant,
+            StatusCode = 200
+        };
     }
 }

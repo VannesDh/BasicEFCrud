@@ -1,9 +1,11 @@
 using BasicCrud.Models;
 using BasicCrud.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BasicCrud.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class FoodController : ControllerBase
@@ -41,7 +43,7 @@ public class FoodController : ControllerBase
 
         return Ok(createdFood);
     }
-
+    
     [HttpPut("{id}")]
     public async Task<ActionResult<Food>> UpdateFood(int id, FoodDto food)
     {

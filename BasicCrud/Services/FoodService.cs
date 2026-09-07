@@ -1,67 +1,101 @@
-using BasicCrud.Data;
 using BasicCrud.Models;
-using Microsoft.EntityFrameworkCore;
+using BasicCrud.Repositories;
 
 namespace BasicCrud.Services;
+
 public class FoodService
 {
-    private readonly AppDbContext _appDbContext;
+    private readonly IFoodRepository _foodRepository;
 
-    public FoodService(AppDbContext appDbContext)
+    public FoodService(IFoodRepository foodRepository)
     {
-        _appDbContext = appDbContext;
+        _foodRepository = foodRepository;
     }
 
-    public async Task<List<Food>> GetAllFood()
+    public async Task<ServiceResult<List<Food>>> GetAllFood()
     {
-        return await _appDbContext.Foods
-                    .ToListAsync();
+        var foods = await _foodRepository.GetAll();
+
+        return new ServiceResult<List<Food>>
+        {
+            Success = true,
+            Message = "Foods retrieved successfully",
+            Data = foods,
+            StatusCode = 200
+        };
     }
 
-    public async Task<List<Food>> GetAllFoodBelowThisPrice(int price)
+    public async Task<ServiceResult<List<Food>>> GetAllFoodBelowThisPrice(int price)
     {
-        return await _appDbContext.Foods
-                    .Where(f => f.Price <= price)
-                    .ToListAsync();
+        var foods = await _foodRepository.GetAllBelowPrice(price);
+
+        return new ServiceResult<List<Food>>
+        {
+            Success = true,
+            Message = "Foods retrieved successfully",
+            Data = foods,
+            StatusCode = 200
+        };
     }
 
-    public async Task<Food> CreateFood(Food food)
+    public async Task<ServiceResult<Food>> CreateFood(Food food)
     {
-        _appDbContext.Foods.Add(food);
-        await _appDbContext.SaveChangesAsync();
-        return food;
+        var createdFood = await _foodRepository.Create(food);
+
+        return new ServiceResult<Food>
+        {
+            Success = true,
+            Message = "Food created successfully",
+            Data = createdFood,
+            StatusCode = 201
+        };
     }
 
-    public async Task<Food?> DeleteFoodById(int id)
+    public async Task<ServiceResult<Food>> UpdateFoodById(int id, FoodDto food)
     {
-        Food? food = await _appDbContext.Foods
-                            .FirstOrDefaultAsync(f => f.Id == id);
+        var updatedFood = await _foodRepository.Update(id, food);
 
-        if(food == null)
-            return null;
+        if (updatedFood == null)
+        {
+            return new ServiceResult<Food>
+            {
+                Success = false,
+                Message = "Food not found",
+                Data = null,
+                StatusCode = 404
+            };
+        }
 
-        _appDbContext.Foods.Remove(food);
-        await _appDbContext.SaveChangesAsync();
-
-        return food;
+        return new ServiceResult<Food>
+        {
+            Success = true,
+            Message = "Food updated successfully",
+            Data = updatedFood,
+            StatusCode = 200
+        };
     }
 
-    public async Task<Food?> UpdateFoodById(int id, FoodDto updatedFood)
+    public async Task<ServiceResult<Food>> DeleteFoodById(int id)
     {
-        Food? food = await _appDbContext.Foods
-                            .FirstOrDefaultAsync(f => f.Id == id);
+        var deletedFood = await _foodRepository.Delete(id);
 
-        if(food == null)
-            return null;
+        if (deletedFood == null)
+        {
+            return new ServiceResult<Food>
+            {
+                Success = false,
+                Message = "Food not found",
+                Data = null,
+                StatusCode = 404
+            };
+        }
 
-        food.Name = updatedFood.Name;
-        food.Price = updatedFood.Price;
-        food.RestaurantId = updatedFood.RestaurantId;
-
-        await _appDbContext.SaveChangesAsync();
-
-        return food;
+        return new ServiceResult<Food>
+        {
+            Success = true,
+            Message = "Food deleted successfully",
+            Data = deletedFood,
+            StatusCode = 200
+        };
     }
-
-
 }
