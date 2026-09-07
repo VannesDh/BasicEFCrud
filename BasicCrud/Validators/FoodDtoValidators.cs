@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace BasicCrud.Validators;
 
-public class FoodValidator : AbstractValidator<Food>
+public class FoodDTOValidator : AbstractValidator<FoodDTO>
 {
-    public FoodValidator()
+    public FoodDTOValidator()
     {
         RuleFor(x => x.Name)
             .NotEmpty()
@@ -14,11 +14,16 @@ public class FoodValidator : AbstractValidator<Food>
             .WithMessage("Food name cannot exceed 100 characters.");
 
         RuleFor(x => x.RestaurantId)
+            .NotEmpty()
+            .WithMessage("RestaurantId is required.")
             .GreaterThan(0)
             .WithMessage("RestaurantId must be greater than 0.");
 
         RuleFor(x => x.Price)
+            .NotEmpty()
+            .WithMessage("Price is required")
             .GreaterThan(0)
-            .WithMessage("Price must be greater than 0.");
+            .WithMessage("Price must be greater than 0");
     }
+    
 }
